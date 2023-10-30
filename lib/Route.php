@@ -1,6 +1,6 @@
 <?php
 
-namespace lib;
+namespace Lib;
 
 class Route
 {
@@ -40,9 +40,20 @@ class Route
              if(preg_match("#^$route$#",$uri, $matches)){
                 /*  $callback(); */
                 $params = array_slice($matches,1);
-                $response = $callback(...$params);
+                
+                if(is_callable($callback))
+                {
+                    $response = $callback(...$params);
+                }
+                if(is_array($callback))
+                {
+                    $controller = new  $callback[0];
 
-                if(is_array($response) || is_object($response)){
+                    $response = $controller->{$callback[1]}(...$params);
+                }
+
+                if(is_array($response) || is_object($response))
+                {
                     header('Content-Type: application/json');
                    echo json_encode($response);
                 }else{
